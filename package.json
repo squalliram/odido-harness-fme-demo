@@ -1,0 +1,23 @@
+{
+  "name": "odido-fme-upgrade",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Harness FME demo for Odido: targeted rollout, kill switch, metrics and an offer experiment on the in-app plan upgrade journey",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "traffic": "node --env-file=.env scripts/simulate-traffic.mjs"
+  },
+  "dependencies": {
+    "@splitsoftware/splitio": "^11.12.1",
+    "@splitsoftware/splitio-browserjs": "^1.7.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
