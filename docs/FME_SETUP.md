@@ -12,7 +12,7 @@ exact specification, so you can recreate the setup in another project or environ
 | `odido_staff`, `beta_testers` | Standard segments | Created, demo keys added |
 | `upgrade_eligible` | Rule-based segment | Created, rules set |
 | `odido_upgrade_journey_v2`, `odido_upgrade_offer`, `ops_upgrade_checkout_enabled` | Feature flags | Created, definitions and targeting set |
-| Upgrade metrics and offer experiment | Metrics, experiment | Created after the first traffic run (FME needs the event types to exist) |
+| 4 `upgrade_*` metrics, experiment `odido_upgrade_offer_test` | Metrics, experiment | Created after the first traffic run (FME needs the event types to exist); 8,000 synthetic customers seeded |
 
 The flags carry the tags the project's governance policy requires (`component`, `owner`, `service`, `team`),
 so the *Feature Flag Policy* check passes. That makes a good talking point for policy-as-code on flag changes.
@@ -81,10 +81,13 @@ price_per_day: {"badge":"Less than a coffee","headline":"{plan} for €{perDay} 
 
 | Metric | Measure | Event | Desired impact | Category |
 | --- | --- | --- | --- | --- |
-| Upgrade conversion rate | Percent of unique users | `upgrade.completed` | Increase | Key metric |
-| Upgrade revenue per user | Sum of event values per user | `upgrade.completed` (value = extra €/month) | Increase | Key metric |
-| Upgrade failure rate | Percent of unique users | `upgrade.failed` | Decrease | Guardrail |
-| Upgrade journey load time | Average of event values per user | `upgrade.load_time_ms` | Decrease | Guardrail |
+| `upgrade_conversion_rate` | Percent of unique users | `upgrade.completed` | Increase | Key metric |
+| `upgrade_revenue_per_user` | Sum of event values per user | `upgrade.completed` (value = extra €/month) | Increase | Key metric |
+| `upgrade_failure_rate` | Percent of unique users | `upgrade.failed` | Decrease | Guardrail |
+| `upgrade_journey_load_time` | Average of event values per user | `upgrade.load_time_ms` | Decrease | Guardrail |
+
+Metric names may only contain letters, digits, `-` and `_`. FME only lets you build a metric on an event type
+it has received in the last 30 days, so send traffic (section 6) before creating metrics in a new environment.
 
 Add an **alert policy** to the two guardrails (for example, alert on a relative degradation of 10% or more)
 and notify a Slack channel or email. For automatic rollback, point an FME alert webhook at an automation
@@ -92,9 +95,13 @@ and notify a Slack channel or email. For automatic rollback, point an FME alert 
 
 ## 5. Experiment
 
-*Experiments → Create experiment* on `odido_upgrade_offer`, targeting rule `upgrade_eligible`,
-baseline `standard`, comparisons `free_month` and `price_per_day`. Key metrics: conversion rate and revenue
-per user. Guardrails: failure rate and load time.
+Experiment `odido_upgrade_offer_test` on `odido_upgrade_offer`, scoped to the targeting rule label
+`in rule based segment upgrade_eligible`, baseline `standard`, comparisons `free_month` and `price_per_day`.
+Key metrics: `upgrade_conversion_rate`, `upgrade_revenue_per_user`. Supporting (guardrail) metrics:
+`upgrade_failure_rate`, `upgrade_journey_load_time`.
+
+Turn on experiment alerting in the UI (*Experiment → Settings → Alerts*): the MCP/API call for it
+returned a server error at setup time.
 
 ## 6. Seed data before the demo
 
